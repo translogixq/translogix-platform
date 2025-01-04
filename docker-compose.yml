@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: postgres_translogix
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: translogix
+      POSTGRES_PASSWORD: qwerty007
+      POSTGRES_DB: demo
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
