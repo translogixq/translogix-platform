@@ -1,7 +1,6 @@
 package translogix.controller;
 
 import jakarta.validation.Valid;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -10,58 +9,80 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import translogix.dto.UserRequestDTO;
+import translogix.dto.UserResponseDTO;
 import translogix.entity.User;
-import translogix.repository.UserRepository;
+import translogix.service.UserService;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/v1/users")
 public class UserController {
 
-    private final UserRepository userRepository;
+    private final UserService userService;
 
-    public UserController(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
 
     @PostMapping
-    public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
-        try {
-            User savedUser = userRepository.save(user);
-            return ResponseEntity.ok(savedUser);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
+    public UserResponseDTO createUser(@Valid @RequestBody UserRequestDTO requestDTO) {
+        User user = new User();
+        user.setFirstName(requestDTO.getFirstName());
+        user.setSecondName(requestDTO.getSecondName());
+        user.setEmail(requestDTO.getEmail());
+        user.setPassword(requestDTO.getPassword());
+
+        User savedUser = userService.save(user);
+
+        return new UserResponseDTO(
+                savedUser.getId(),
+                savedUser.getFirstName(),
+                savedUser.getSecondName(),
+                savedUser.getEmail()
+        );
+    }
+
+    @GetMapping("/{id}")
+    public UserResponseDTO getUserById(@PathVariable Long id) {
+        User user = userService.findById(id);
+        return new UserResponseDTO(
+                user.getId(),
+                user.getFirstName(),
+                user.getSecondName(),
+                user.getEmail()
+        );
     }
 
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
-        List<User> users = userRepository.findAll();
-        return ResponseEntity.ok(users);
+    public List<UserResponseDTO> getAllUsers() {
+        return userService.findAll().stream()
+                .map(user -> new UserResponseDTO(
+                        user.getId(),
+                        user.getFirstName(),
+                        user.getSecondName(),
+                        user.getEmail()
+                ))
+                .toList();
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @Valid @RequestBody User userUpdate) {
-        return this.userRepository.findById(id)
-                .map(existingUser -> {
-                    existingUser.setFirst_name(userUpdate.getFirst_name());
-                    existingUser.setSecond_name(userUpdate.getSecond_name());
-                    existingUser.setEmail(userUpdate.getEmail());
-                    User updateUser = userRepository.save(existingUser);
-                    return ResponseEntity.ok(updateUser);
-                })
-                .orElse(ResponseEntity.notFound().build());
+    @PutMapping("/{email}")
+    public UserResponseDTO updateUser(@PathVariable String email, @Valid @RequestBody UserRequestDTO requestDTO) {
+        User updateUser = userService.update(email, requestDTO);
+
+        return new UserResponseDTO(
+                updateUser.getId(),
+                updateUser.getFirstName(),
+                updateUser.getSecondName(),
+                updateUser.getEmail()
+        );
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        if (userRepository.existsById(id)) {
-            userRepository.deleteById(id);
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public String deleteUser(@PathVariable Long id) {
+        userService.delete(id);
+        return "User with Id " + id + " has been deleted.";
     }
 
 }
