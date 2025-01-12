@@ -1,17 +1,12 @@
 spring:
   flyway:
     enabled: true
-    url: jdbc:postgresql://localhost:5432/translogix-platform
-    user: ${USER_NAME}
-    password: ${PASSWORD}
     locations: classpath:db/migration
-
   datasource:
     url: jdbc:postgresql://localhost:5432/translogix-platform
     username: ${USER_NAME}
     password: ${PASSWORD}
     driver-class-name: org.postgresql.Driver
-
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:

@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import translogix.dto.UserRequestDTO;
 import translogix.dto.UserResponseDTO;
-import translogix.entity.User;
 import translogix.service.UserService;
 
 import java.util.List;
@@ -28,55 +27,23 @@ public class UserController {
 
     @PostMapping
     public UserResponseDTO createUser(@Valid @RequestBody UserRequestDTO requestDTO) {
-        User user = new User();
-        user.setFirstName(requestDTO.getFirstName());
-        user.setSecondName(requestDTO.getSecondName());
-        user.setEmail(requestDTO.getEmail());
-        user.setPassword(requestDTO.getPassword());
+        return userService.save(requestDTO);
 
-        User savedUser = userService.save(user);
-
-        return new UserResponseDTO(
-                savedUser.getId(),
-                savedUser.getFirstName(),
-                savedUser.getSecondName(),
-                savedUser.getEmail()
-        );
     }
 
     @GetMapping("/{id}")
     public UserResponseDTO getUserById(@PathVariable Long id) {
-        User user = userService.findById(id);
-        return new UserResponseDTO(
-                user.getId(),
-                user.getFirstName(),
-                user.getSecondName(),
-                user.getEmail()
-        );
+        return userService.findById(id);
     }
 
     @GetMapping
     public List<UserResponseDTO> getAllUsers() {
-        return userService.findAll().stream()
-                .map(user -> new UserResponseDTO(
-                        user.getId(),
-                        user.getFirstName(),
-                        user.getSecondName(),
-                        user.getEmail()
-                ))
-                .toList();
+        return userService.findAll();
     }
 
     @PutMapping("/{email}")
     public UserResponseDTO updateUser(@PathVariable String email, @Valid @RequestBody UserRequestDTO requestDTO) {
-        User updateUser = userService.update(email, requestDTO);
-
-        return new UserResponseDTO(
-                updateUser.getId(),
-                updateUser.getFirstName(),
-                updateUser.getSecondName(),
-                updateUser.getEmail()
-        );
+        return userService.update(email, requestDTO);
     }
 
     @DeleteMapping("/{id}")

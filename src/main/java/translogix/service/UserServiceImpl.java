@@ -2,8 +2,10 @@ package translogix.service;
 
 import org.springframework.stereotype.Service;
 import translogix.dto.UserRequestDTO;
+import translogix.dto.UserResponseDTO;
 import translogix.entity.User;
 import translogix.exception.UserNotFoundException;
+import translogix.mapper.UserMapper;
 import translogix.repository.UserRepository;
 
 import java.util.List;
@@ -18,40 +20,40 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User save(User user) {
-        return userRepository.save(user);
+    public UserResponseDTO save(UserRequestDTO requestDTO) {
+        User user = UserMapper.toUserRequest(requestDTO);
+        User savedUser = userRepository.save(user);
+        return UserMapper.toUserResponse(savedUser);
     }
 
     @Override
-    public User findById(Long id) {
-        return userRepository.findById(id)
+    public UserResponseDTO findById(Long id) {
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + id));
-
+        return UserMapper.toUserResponse(user);
     }
 
     @Override
-    public List<User> findAll() {
-        return userRepository.findAll();
+    public List<UserResponseDTO> findAll() {
+        return userRepository.findAll().stream()
+                .map(UserMapper::toUserResponse)
+                .toList();
     }
 
     @Override
-    public User update(String email, UserRequestDTO requestDTO) {
+    public UserResponseDTO update(String email, UserRequestDTO requestDTO) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
-
-        user.setFirstName(requestDTO.getFirstName());
-        user.setSecondName(requestDTO.getSecondName());
-        user.setEmail(requestDTO.getEmail());
-        user.setPassword(requestDTO.getPassword());
-
-        return userRepository.save(user);
+        User updatedUser = UserMapper.toUserRequest(requestDTO);
+        updatedUser.setId(user.getId());
+        User savedUser = userRepository.save(updatedUser);
+        return UserMapper.toUserResponse(savedUser);
     }
 
     @Override
     public void delete(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
-
         userRepository.delete(user);
     }
 

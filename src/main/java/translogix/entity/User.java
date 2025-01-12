@@ -20,7 +20,7 @@ import org.hibernate.envers.Audited;
 @Getter
 @Entity
 @Audited
-@Table(name = "users")
+@Table(name = "\"user\"")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

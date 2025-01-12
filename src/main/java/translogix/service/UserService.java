@@ -1,19 +1,19 @@
 package translogix.service;
 
 import translogix.dto.UserRequestDTO;
-import translogix.entity.User;
+import translogix.dto.UserResponseDTO;
 
 import java.util.List;
 
 public interface UserService {
 
-    User save(User user);
+    UserResponseDTO save(UserRequestDTO requestDTO);
 
-    User findById(Long id);
+    UserResponseDTO findById(Long id);
 
-    List<User> findAll();
+    List<UserResponseDTO> findAll();
 
-    User update(String email, UserRequestDTO requestDTO);
+    UserResponseDTO update(String email, UserRequestDTO requestDTO);
 
     void delete(Long id);
 }
