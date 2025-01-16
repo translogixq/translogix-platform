@@ -7,12 +7,11 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
-public class UserResponseDTO {
-
-    private Long id;
+@AllArgsConstructor
+public class UserRequest {
     private String firstName;
     private String secondName;
     private String email;
+    private String password;
 }

@@ -1,33 +1,16 @@
 package translogix.mapper;
 
-import translogix.dto.UserRequestDTO;
-import translogix.dto.UserResponseDTO;
-import translogix.entity.User;
+import org.mapstruct.Mapper;
+import org.springframework.stereotype.Component;
+import translogix.dto.UserRequest;
+import translogix.dto.UserResponse;
+import translogix.entity.UserEntity;
 
-public class UserMapper {
+@Component
+@Mapper(componentModel = "spring")
+public interface UserMapper {
 
-    public static UserResponseDTO toUserResponse(User user) {
-        if (user == null) {
-            return null;
-        }
-        return new UserResponseDTO(
-                user.getId(),
-                user.getFirstName(),
-                user.getSecondName(),
-                user.getEmail()
-        );
-    }
+    UserResponse toResponse(UserEntity userEntity);
 
-    public static User toUserRequest(UserRequestDTO requestDTO) {
-        if (requestDTO == null) {
-            return null;
-        }
-        User user = new User();
-        user.setFirstName(requestDTO.getFirstName());
-        user.setSecondName(requestDTO.getSecondName());
-        user.setEmail(requestDTO.getEmail());
-        user.setPassword(requestDTO.getPassword());
-        return user;
-    }
-
+    UserEntity toEntity(UserRequest userRequest);
 }

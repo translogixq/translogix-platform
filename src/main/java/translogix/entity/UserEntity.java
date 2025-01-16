@@ -12,16 +12,14 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.envers.Audited;
 
-@AllArgsConstructor
-@NoArgsConstructor
 @Setter
 @Getter
 @Entity
-@Audited
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "\"user\"")
-public class User {
+public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -42,4 +40,5 @@ public class User {
     @Column(name = "password", nullable = false)
     @NotBlank(message = "Password is mandatory")
     private String password;
+
 }

@@ -1,9 +1,10 @@
 package translogix.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import translogix.dto.UserRequestDTO;
-import translogix.dto.UserResponseDTO;
-import translogix.entity.User;
+import translogix.dto.UserRequest;
+import translogix.dto.UserResponse;
+import translogix.entity.UserEntity;
 import translogix.exception.UserNotFoundException;
 import translogix.mapper.UserMapper;
 import translogix.repository.UserRepository;
@@ -11,50 +12,47 @@ import translogix.repository.UserRepository;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
-    public UserServiceImpl(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    @Override
+    public void createUser(UserRequest requestDTO) {
+        UserEntity userEntity = userMapper.toEntity(requestDTO);
+        userRepository.save(userEntity);
     }
 
     @Override
-    public UserResponseDTO save(UserRequestDTO requestDTO) {
-        User user = UserMapper.toUserRequest(requestDTO);
-        User savedUser = userRepository.save(user);
-        return UserMapper.toUserResponse(savedUser);
+    public UserResponse findById(Long id) {
+        return userRepository.findById(id)
+                .map(userMapper::toResponse)
+                .orElseThrow(() -> new UserNotFoundException("UserEntity not found with ID: " + id));
     }
 
     @Override
-    public UserResponseDTO findById(Long id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + id));
-        return UserMapper.toUserResponse(user);
-    }
-
-    @Override
-    public List<UserResponseDTO> findAll() {
+    public List<UserResponse> findAll() {
         return userRepository.findAll().stream()
-                .map(UserMapper::toUserResponse)
+                .map(userMapper::toResponse)
                 .toList();
     }
 
     @Override
-    public UserResponseDTO update(String email, UserRequestDTO requestDTO) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
-        User updatedUser = UserMapper.toUserRequest(requestDTO);
-        updatedUser.setId(user.getId());
-        User savedUser = userRepository.save(updatedUser);
-        return UserMapper.toUserResponse(savedUser);
+    public UserResponse update(String email, UserRequest requestDTO) {
+        UserEntity userEntity = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("UserEntity not found with email: " + email));
+        UserEntity updatedUserEntity = userMapper.toEntity(requestDTO);
+        updatedUserEntity.setId(userEntity.getId());
+        UserEntity savedUserEntity = userRepository.save(updatedUserEntity);
+        return userMapper.toResponse(savedUserEntity);
     }
 
     @Override
     public void delete(Long id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
-        userRepository.delete(user);
+        UserEntity userEntity = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("UserEntity not found with id: " + id));
+        userRepository.delete(userEntity);
     }
 
 }
